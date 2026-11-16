@@ -332,9 +332,9 @@ void ttn_join() {
 
     #elif defined(USE_OTAA)
 
-        // Make LMiC initialize the default channels, choose a channel, and
-        // schedule the OTAA join
-        LMIC_startJoining();
+        // Do not start joining yet. First check whether a valid session
+        // is stored in ESP32 Preferences. If no session exists, the code
+        // below starts a fresh OTAA join exactly once.
 
         #ifdef SINGLE_CHANNEL_GATEWAY
             // LMiC will already have decided to send on one of the 3 default
@@ -362,7 +362,8 @@ void ttn_join() {
             Serial.println("Rejoining saved session");
             LMIC_setSession(netId, devAddr, nwkKey, artKey);
 
-            // Trigger a false joined
+            // Restore the local LMIC session. This callback reports that
+            // a session is available locally; it does not perform a new OTAA join.
             _ttn_callback(EV_JOINED);
         }
 
